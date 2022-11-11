@@ -25,7 +25,22 @@ def get_listings_from_search_results(html_file):
         ('Loft in Mission District', 210, '1944564'),  # example
     ]
     """
-    pass
+    list = []
+    
+    with open(html_file, 'r') as f:
+        soup = BeautifulSoup(f, "html.parser")
+    
+    listings = soup.find_all('div', itemprop="itemListElement")
+    for listing in listings:
+        item = listing.find('div', class_="t1jojoys dir dir-ltr")
+        id = item.get('id')
+        id = id[6:]
+        cost = listing.find('span', class_="_tyxjp1")
+        cost = cost.text
+        cost = cost[1:]
+        tup = (item.text, int(cost), id)
+        list.append(tup)
+    return list
 
 
 def get_listing_information(listing_id):
@@ -52,7 +67,10 @@ def get_listing_information(listing_id):
         number of bedrooms
     )
     """
-    pass
+    html_file = "listing_" + listing_id + ".html"
+    with open(html_file, 'r') as f:
+        soup = BeautifulSoup(f, "html.parser")
+    policy = soup.find_all('div', itemprop="itemListElement")
 
 
 def get_detailed_listing_database(html_file):
@@ -145,13 +163,14 @@ class TestCases(unittest.TestCase):
         # check that the number of listings extracted is correct (20 listings)
         self.assertEqual(len(listings), 20)
         # check that the variable you saved after calling the function is a list
-        self.assertEqual(type(listings), list)
+        self.assertIsInstance(listings, list)
         # check that each item in the list is a tuple
-
+        for item in listings:
+            self.assertIsInstance(item, tuple)
         # check that the first title, cost, and listing id tuple is correct (open the search results html and find it)
-
+        self.assertEqual(listings[0], ('Loft in Mission District', 210, '1944564'))
         # check that the last title is correct (open the search results html and find it)
-        pass
+        self.assertEqual(listings[-1], ('Guest suite in Mission District', 238, '32871760'))
 
     def test_get_listing_information(self):
         html_list = ["1623609",
