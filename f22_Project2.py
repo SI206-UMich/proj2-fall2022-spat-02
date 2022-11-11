@@ -173,7 +173,18 @@ def check_policy_numbers(data):
     ]
 
     """
-    pass
+    list = []
+    for listing in data:
+        valid = False
+        policyNo = listing[3]
+        if(policyNo[:2] == "20"):
+            valid = ( (policyNo[4:7] == "-00") and (policyNo[-3:] == "STR") )
+        else:
+            valid = (policyNo[:7] == "STR-000")
+        if(not valid):
+            list.append(listing[2])
+    return list
+
 
 
 def extra_credit(listing_id):
@@ -271,12 +282,13 @@ class TestCases(unittest.TestCase):
         # check that there are 21 lines in the csv
         self.assertEqual(len(csv_lines), 21)
         # check that the header row is correct
-
+        self.assertEqual(csv_lines[0], ['Listing Title','Cost','Listing ID','Policy Number','Place Type','Number of Bedrooms'])
         # check that the next row is Private room in Mission District,82,51027324,Pending,Private Room,1
-
+        self.assertEqual(csv_lines[1], ['Private room in Mission District','82','51027324','Pending','Private Room','1'])
+        # Extra Test
+        self.assertEqual(csv_lines[2], ['Guest suite in Mission District','102','724897778179485553','2022-009365STR','Entire Room','1'])
         # check that the last row is Apartment in Mission District,399,28668414,Pending,Entire Room,2
-
-        pass
+        self.assertEqual(csv_lines[-1], ['Apartment in Mission District','399','28668414','Pending','Entire Room','2'])
 
     def test_check_policy_numbers(self):
         # call get_detailed_listing_database on "html_files/mission_district_search_results.html"
