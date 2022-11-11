@@ -176,7 +176,11 @@ def check_policy_numbers(data):
     list = []
     for listing in data:
         valid = False
+        
         policyNo = listing[3]
+        if(policyNo == "Pending" or policyNo == "Exempt"):
+            continue
+
         if(policyNo[:2] == "20"):
             valid = ( (policyNo[4:7] == "-00") and (policyNo[-3:] == "STR") )
         else:
@@ -201,7 +205,23 @@ def extra_credit(listing_id):
     gone over their 90 day limit, else return True, indicating the lister has
     never gone over their limit.
     """
-    pass
+    html_file = "html_files/listing_" + listing_id + "_reviews.html"
+    with open(html_file, 'r') as f:
+        soup = BeautifulSoup(f, "html.parser")
+    
+    dic = {}
+    x = soup.find_all('li', class_ = "_1f1oir5")
+    for i in x:
+        year = i.text[-4:]
+        if(dic.get(year, None) == None):
+            dic[year] = 1
+        else:
+            dic[year] += 1
+    
+    for years in dic:
+        if(dic[years] > 90):
+            return False
+    return True
 
 
 class TestCases(unittest.TestCase):
@@ -299,11 +319,18 @@ class TestCases(unittest.TestCase):
         # check that the return value is a list
         self.assertEqual(type(invalid_listings), list)
         # check that there is exactly one element in the string
-
+        self.assertEqual(len(invalid_listings), 1)
         # check that the element in the list is a string
-
+        self.assertIsInstance(invalid_listings[0], str)
         # check that the first element in the list is '16204265'
-        pass
+        self.assertEqual(invalid_listings[0], '16204265')
+
+    def test_extra_credit(self):
+        #should not go over 90
+        self.assertTrue(extra_credit('1944564'))
+
+        #should go over 90
+        self.assertFalse(extra_credit('16204265'))
 
 
 if __name__ == '__main__':
