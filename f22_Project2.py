@@ -115,7 +115,13 @@ def get_detailed_listing_database(html_file):
         ...
     ]
     """
-    pass
+    list = []
+    listings = get_listings_from_search_results(html_file)
+    for listing in listings:
+        info = get_listing_information(listing[2])
+        tup = listing + info
+        list.append(tup)
+    return list
 
 
 def write_csv(data, filename):
